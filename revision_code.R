@@ -1,13 +1,12 @@
-library(HH)
-library(colorspace)
-library(RColorBrewer)
-library(classInt)
-library(mapStats)
-library(foreign)
-library(rgdal)
-library(rgeos)
-library(xtable)
-setwd("U:/JSM")
+require(HH)
+require(colorspace)
+require(RColorBrewer)
+require(classInt)
+require(mapStats)
+require(foreign)
+require(rgdal)
+require(rgeos)
+require(xtable)
 
 par.orig<-c(5, 4, 4, 2) + 0.2
 par.map<-rep(0,4)
@@ -185,7 +184,7 @@ attributes(LB.area)$bbox<-new.bbox
 attributes(LBboundary.temp)$bbox<-attributes(LB.area)$bbox
 attributes(LBwater)$bbox<-attributes(LB.area)$bbox
 
-
+pdf("area_map.pdf")
 par(mar=c(0,0,2,0))
 plot(LBboundary.temp, border=NA,  col="bisque")
 plot(LB.area, add=TRUE, border="grey")
@@ -204,6 +203,7 @@ text(x=c(-118.21, -118.15, -118.22, -118.16, -118.165, -118.15, -118.13,
      labels=c("city port", "Pacific Ocean","Compton","airport","Signal Hill",
      "Los Angeles", "marina", "university", "Carson","Cypress","Seal Beach","Lakewood", "naval\ncomplex"))
 arrows(x0=-118.15, x1=-118.155, y0=33.935, y1=33.948)
+dev.off()
 
 ##################################### crime rate data
 
@@ -304,6 +304,8 @@ par(omd=c(.04,1,0,1))
 
 reg1<-lm(crime.bad~  person_rate, data=crime.zip)
 reg2<-lm(feel.unsafe ~ person_rate , data=crime.zip)
+
+pdf("crime_person_byzip2.pdf")
 xyplot( crime.bad ~ person_rate, data=crime.zip, 
         xlab=list("Crimes against persons per 1,000 in zip code (age 16-64)",cex=1.5),
         ylab=list("Percent saying crime is bad",cex=1.5), 
@@ -316,8 +318,10 @@ xyplot( crime.bad ~ person_rate, data=crime.zip,
                     labels=c(crime.zip$zip, "Not significant"),
                     font=c(rep(1,11),2), 
                     pos=ifelse(crime.zip$zip %in% c("90804","90813"),4,1))})
+dev.off()
 
 
+pdf("safety_person_byzip2.pdf")
 xyplot( feel.unsafe ~ person_rate, data=crime.zip, 
         xlab=list("Crimes against persons per 1,000 in zip code (age 16-64)", cex=1.5),
         ylab=list("Percent saying they feel unsafe", cex=1.5), 
@@ -329,7 +333,7 @@ xyplot( feel.unsafe ~ person_rate, data=crime.zip,
                     c(crime.zip$feel.unsafe, 20), cex=1.2,
                     labels=c(crime.zip$zip, "Slope=0.6917, p=0.0528"),
                     font=c(rep(1,11),2), pos=ifelse(crime.zip$zip=="90806",4,1))})
-
+dev.off()
 
 
 
@@ -388,7 +392,7 @@ lik.plot$panel <- function(...) {
   panel.rect(x=83, y=1:11, width=8, height=.6, col=race_colors)
 }
 lik.plot
-pdf("journal/income_zipcode2.pdf", width=9, height=7)
+pdf("income_zipcode2.pdf", width=9, height=7)
 lik.plot
 dev.off()
 
@@ -413,32 +417,36 @@ ybox <- new_bounds[2,]
 
 #percent nonwhite
 
-
+pdf("race_map.pdf")
 mapStats(d=lb3yr[ ,c("qs3a","nonwhite","weight")], var="nonwhite", wt.var="weight",
          stat="mean", wt.label=FALSE, d.geo.var="qs3a", map.file=LB, map.geo.var="ZCTA5CE10",
          ngroups=5, col.pal="Reds", titles="Percent Hispanic or non-white by zip code", style="jenks", 
          cell.min=3, cex.label=1.2, xlim=xbox, ylim=ybox, cex.title=1.5)
+dev.off()
  
 black_square <- list("sp.points", matrix(c(-118.1, 33.87), ncol=2), 
                       pch=15, col="black", cex=4, lwd=5)
 
+pdf("unsafe_map.pdf")
 mapStats(d=na.omit(lb3yr[ ,c("qs3a","feel.unsafe","weight")]), var="feel.unsafe", wt.var="weight",
          stat="mean", wt.label=FALSE, d.geo.var="qs3a", map.file=LB, map.geo.var="ZCTA5CE10",
          ngroups=5, col.pal="Reds", titles="Percent feeling unsafe at night near home by zip code", style="jenks", 
          cell.min=3, cex.label=1.2, , xlim=xbox, ylim=ybox, cex.title=1.5,
          sp_layout.pars=list(black_square))         
+dev.off()
  
 lb3yr$crime.bad <- ifelse(lb3yr$q19r=="Low", 100, 0)
 
 red_triangle <- list("sp.points", matrix(c(-118.1, 33.87), ncol=2), 
                       pch=2, col="red", cex=4, lwd=5)
 
-
+pdf("crime_map.pdf")
 mapStats(d=na.omit(lb3yr[ ,c("qs3a","crime.bad","weight")]), var="crime.bad", wt.var="weight",
          stat="mean", wt.label=FALSE, d.geo.var="qs3a", map.file=LB, map.geo.var="ZCTA5CE10",
          ngroups=5, col.pal="Reds", titles="Percent saying crime level is high by zip code", style="jenks", 
          cell.min=3, cex.label=1.2,xlim=xbox, ylim=ybox, cex.title=1.5,
          sp_layout.pars=list(red_triangle))
+dev.off()
 
 lb3yr$parks <- ifelse(lb3yr$q7ar=="High", 100, 0)
 
@@ -446,19 +454,23 @@ lb3yr$parks <- ifelse(lb3yr$q7ar=="High", 100, 0)
 park1 <- list("sp.polygons", LBparks, fill=ifelse(LBparks$PK_TYPE=="GC", "DarkGreen", "LightGreen"))
 water <- list("sp.polygons", LBwater, fill="cyan3", col="transparent")
 
+
+pdf("park_map.pdf")
 mapStats(d=na.omit(lb3yr[ ,c("qs3a","parks","weight")]), var="parks",  wt.var="weight", map.label=TRUE,
          stat="mean", wt.label=FALSE, d.geo.var="qs3a", map.file=LB, map.geo.var="ZCTA5CE10",
          ngroups=5, col.pal="Reds", titles="Percent saying park availability is high, by zip code", style="jenks", 
          cell.min=3, cex.label=1.2 ,xlim=xbox, ylim=ybox, sp_layout.pars=list(park1), cex.title=1.5)
-
+dev.off()
 
 lb3yr$schools.good <- ifelse(lb3yr$q7fr=="High", 100, 0)
+
+pdf("schools_map.pdf")
 
 mapStats(d=na.omit(lb3yr[ ,c("qs3a","schools.good","weight")]), var="schools.good", wt.var="weight",
          stat="mean", wt.label=FALSE, d.geo.var="qs3a", map.file=LB, map.geo.var="ZCTA5CE10",
          ngroups=5, col.pal="Reds", titles="Percent saying public schools are good by zip code", style="jenks", 
          cell.min=3, cex.label=1.2, xlim=xbox, ylim=ybox, cex.title=1.5)
-
+dev.off()
 
 ##################################### school quality plot
 
@@ -587,7 +599,7 @@ schplot <- xyplot( schools.good ~ api.median, data=apizip, ylim=c(12, 40),
                           ifelse(apizip$ZCTA5CE10 =="90815",2,1)),1))})
 
 
-
+pdf("school_perception2.pdf")
 schplot
 schplot$panel.args.common$border <- "#B6B9D0"
 schplot$trellis.settings$clip$panel <- FALSE
@@ -652,5 +664,5 @@ rect(xleft=leg$rect[["left"]], xright=(leg$rect[["w"]] + leg$rect[["left"]])+5,
 points(x=rep(920,11), y=apizip$schools.good, col="black", pch=22, 
      cex=2.5, cex.axis=1.2, cex.lab=1.1, bg=apizip$colors.school, xpd=NA)
 
-
+dev.off()
 

@@ -1,7 +1,7 @@
 # Ackerman
 This repository contains supplementary material for the paper "Consistency of Survey Opinions and External Data" to enable the reader to reproduce the analysis.
 
-The full reference is: Ackerman, S. (2019) "Consistency of survey opinions and external data", Computational Statistics 34(4):1489–1509.
+The full reference is: Ackerman, S. (2019) "Consistency of Survey Opinions and External Data", Computational Statistics 34(4):1489–1509.
 
 The final publication is available at the Springer web site via https://doi.org/10.1007/s00180-019-00882-2. © Springer-Verlag GmbH Germany, part of Springer Nature, 2019.
 
